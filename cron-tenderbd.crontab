@@ -1,0 +1,18 @@
+# TenderBD scraper — example crontab for a VPS / always-on machine.
+# Runs the incremental scrape every 6 hours (04:00, 10:00, 16:00, 22:00
+# server time). Each run polls the last 2 days of notices so a missed
+# run still catches up. Logs go to ~/tenderbd-production/logs/.
+#
+# Install with:  crontab cron-tenderbd.crontab   (after editing paths)
+# Or add the line below to your existing crontab with `crontab -e`.
+
+# --- edit these two paths to match your machine ---
+# PROJECT_DIR=/home/mashkur/tenderbd-production
+# LOG_DIR=/home/mashkur/tenderbd-production/logs
+
+# Every 6 hours: incremental run (search poll + detail enrichment).
+0 4,10,16,22 * * * cd /home/mashkur/tenderbd-production && /home/mashkur/tenderbd-production/.venv/bin/python -m tenderbd_scraper.scrape run --days 2 >> /home/mashkur/tenderbd-production/logs/scrape.log 2>&1
+
+# Weekly on Sunday 03:00: wider 7-day sweep to catch anything missed
+# (e.g. portal downtime during the week).
+0 3 * * 0 cd /home/mashkur/tenderbd-production && /home/mashkur/tenderbd-production/.venv/bin/python -m tenderbd_scraper.scrape run --days 7 >> /home/mashkur/tenderbd-production/logs/scrape-weekly.log 2>&1

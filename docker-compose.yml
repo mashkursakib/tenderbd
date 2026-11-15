@@ -1,0 +1,51 @@
+# TenderBD local development with Docker.
+#
+# Usage (see README.md for the full quickstart):
+#   docker compose up --build
+# The portal is then at http://localhost:8000, backed by a local
+# Postgres 15 database. The app image is the production Dockerfile, so
+# this also smoke-tests the deploy artifact.
+#
+# Notes:
+# - The db credentials below are local-dev defaults only. Never use
+#   them in production; production uses Supabase via DATABASE_URL.
+# - The app container does NOT live-reload code. For iterative backend
+#   work, run uvicorn directly on your machine instead (README.md).
+# - For iterative frontend work, run `npm run dev` in frontend/ (Vite
+#   dev server) and point it at the API on localhost:8000.
+# - The app creates every table automatically on its first start;
+#   no manual database initialisation is needed.
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: tenderbd
+      POSTGRES_USER: tenderbd
+      POSTGRES_PASSWORD: tenderbd
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tenderbd -d tenderbd"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://tenderbd:tenderbd@db:5432/tenderbd
+      ADMIN_EMAILS: mashkursakib@gmail.com,info@masconsultancy.org,masconsultancybd@gmail.com
+      REFRESH_TOKEN: local-dev-refresh-token
+      APP_BASE_URL: http://localhost:8000
+      PORT: "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
