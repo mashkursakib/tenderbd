@@ -1,0 +1,26 @@
+# TenderBD production dependencies: scraper + backend merged.
+# Minimum versions only; no exact pins. The backend agent also keeps
+# backend/requirements.txt for the backend alone; this root file is
+# what the Docker build and CI install, so it must cover everything.
+
+# --- Scraper ---
+requests>=2.31
+beautifulsoup4>=4.12
+feedparser>=6.0.10
+
+# --- Backend (FastAPI) ---
+fastapi>=0.110
+uvicorn[standard]>=0.29
+psycopg[binary]>=3.1
+argon2-cffi>=23.1.0
+python-multipart>=0.0.9
+httpx>=0.27
+python-dotenv>=1.0
+
+# --- Tests ---
+pytest>=8.0
+
+# Optional fallback only (NOT installed by default): headless-browser
+# rendering if the portal ever requires JavaScript. Install with:
+#   pip install playwright && playwright install chromium
+# playwright>=1.44

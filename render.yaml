@@ -1,0 +1,44 @@
+# TenderBD production deployment on Render (free tier).
+#
+# One web service serves both the FastAPI API and the built React SPA
+# (see Dockerfile). Render's free tier spins the service down after
+# inactivity, so the first request after idle can be slow; that is
+# acceptable for this portal.
+#
+# Setup:
+#   1. Create a Supabase project (free tier) and note its Postgres
+#      connection URL.
+#   2. Render dashboard -> New -> Blueprint -> select this repo.
+#   3. In the Render dashboard, set the sync: false variables below:
+#      DATABASE_URL, REFRESH_TOKEN, RESEND_API_KEY.
+#   4. Deploy. Add the custom domain tender.masconsultancy.org in
+#      Render, then the DNS CNAME on Spaceship (see README.md).
+#
+# Auto-deploy: Render's default (deploy on push to main) applies and
+# matches how the MAS site deploys. No autoDeploy key is set here.
+#
+# Note: Render Blueprints do not support generating a secret value
+# inline, so REFRESH_TOKEN is sync: false. The parent must set it in
+# the dashboard to a long random string (e.g. 32+ random hex chars)
+# before the first deploy, and keep the same value for any client
+# that calls POST /api/v1/refresh.
+
+services:
+  - type: web
+    name: tenderbd
+    env: docker
+    region: singapore
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Supabase Postgres URL; set in the Render dashboard
+      - key: ADMIN_EMAILS
+        value: mashkursakib@gmail.com,info@masconsultancy.org,masconsultancybd@gmail.com
+      - key: REFRESH_TOKEN
+        sync: false # random secret guarding POST /api/v1/refresh; set in the dashboard
+      - key: RESEND_API_KEY
+        sync: false # optional; enables password-reset emails. Leave unset to disable them
+      - key: APP_BASE_URL
+        value: https://tender.masconsultancy.org

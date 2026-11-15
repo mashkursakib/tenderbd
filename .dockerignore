@@ -1,0 +1,27 @@
+# Keep the image free of VCS data, tests, local state, and anything the
+# runtime does not need. The frontend is rebuilt from source in stage 1,
+# so node_modules and dist stay out of the build context.
+.git
+.github
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+render.yaml
+*.md
+*.db
+*.sqlite3
+.env
+.env.*
+!.env.example
+**/__pycache__/
+**/*.pyc
+.venv/
+venv/
+.pytest_cache/
+tests-scraper/
+backend/tests/
+frontend/node_modules/
+frontend/dist/
+cron-tenderbd.crontab
+requirements-scraper.txt
