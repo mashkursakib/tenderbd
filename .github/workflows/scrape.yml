@@ -1,0 +1,59 @@
+# TenderBD scraper — free scheduled runs on GitHub Actions.
+# Runs the incremental scrape every 6 hours against the PostgreSQL
+# database configured in the DATABASE_URL repository secret
+# (Supabase or Neon free tier). GitHub's free tier includes 2,000
+# Actions minutes/month for private repos; each run here takes a
+# few minutes, so scheduled scraping stays comfortably free.
+#
+# Setup:
+#   1. Push this repo to GitHub.
+#   2. Repo Settings -> Secrets and variables -> Actions -> New secret:
+#      DATABASE_URL = postgresql://... (Supabase/Neon connection string)
+#   3. The workflow runs on schedule; trigger manually from the
+#      Actions tab ("Run workflow") any time.
+#
+# Notes:
+# - The scraper is polite by design (2s between requests, retries
+#   with backoff, project User-Agent). Keep the 6-hour cadence;
+#   do not schedule it more often than hourly.
+# - No credentials for e-GP are used or needed — public data only.
+
+name: Scrape e-GP tenders
+
+on:
+  schedule:
+    # Every 6 hours (04:00, 10:00, 16:00, 22:00 UTC).
+    - cron: "0 4,10,16,22 * * *"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Publish-date lookback window (days)"
+        required: false
+        default: "2"
+
+permissions:
+  contents: read
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        run: |
+          python -m tenderbd_scraper.scrape init-db
+          python -m tenderbd_scraper.scrape run \
+            --days "${{ inputs.days || '2' }}"
