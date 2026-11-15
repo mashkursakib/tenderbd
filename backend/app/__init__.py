@@ -1,0 +1,1 @@
+"""TenderBD FastAPI application package."""
