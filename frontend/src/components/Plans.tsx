@@ -6,15 +6,6 @@ import type { Me, PaymentSubmission, Plan } from '../types';
 
 const PLAN_PRICES: Record<string, number> = { Premium: 399, Pro: 799 };
 
-// Market table data (from the task copy; site names, years and prices
-// are data, not UI chrome). "about 2011" has no dictionary key, so the
-// two language forms are written here.
-const MARKET_ROWS = [
-  { site: 'BDTender', url: 'https://bdtender.com', since: '2003', price: 'BDT 1,050/mo, 8,190/yr' },
-  { site: 'TenderBazar', url: 'https://tenderbazar.com', since: 'about2011', price: 'BDT 1,050/mo, 8,190/yr' },
-  { site: 'alltender', url: 'https://alltender.com', since: '2000', price: 'BDT 1,000 + VAT/mo, 7,800/yr' },
-];
-
 interface Props {
   user: Me | null;
   onUserChange: () => void;
@@ -277,45 +268,6 @@ export default function Plans({ user, onUserChange, onSignIn }: Props) {
           )}
         </section>
       )}
-
-      <section className="card">
-        <h2 className="section-title">{d.marketTitle}</h2>
-        <div className="market-table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>{d.tableSite}</th>
-                <th>{d.tableSince}</th>
-                <th>{d.tableBasePrice}</th>
-                <th>{d.tableJv}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MARKET_ROWS.map((row) => (
-                <tr key={row.site}>
-                  <td>
-                    <a href={row.url} target="_blank" rel="noopener noreferrer">
-                      {row.site}
-                    </a>
-                  </td>
-                  <td>
-                    {row.since === 'about2011'
-                      ? lang === 'bn'
-                        ? 'প্রায় ২০১১'
-                        : 'about 2011'
-                      : row.since}
-                  </td>
-                  <td>{row.price}</td>
-                  <td>{d.noWord}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="field-note" style={{ marginTop: '0.9rem' }}>
-          {d.marketNote}
-        </p>
-      </section>
     </div>
   );
 }

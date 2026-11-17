@@ -1129,10 +1129,6 @@ label {
   align-items: center;
 }
 
-.market-table-wrap {
-  overflow-x: auto;
-}
-
 table.data-table {
   width: 100%;
   border-collapse: collapse;
