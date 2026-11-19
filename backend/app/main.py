@@ -63,7 +63,7 @@ def create_app() -> FastAPI:
     api.include_router(consulting.router)
     api.include_router(admin.router)
 
-    @api.get("/health")
+    @api.api_route("/health", methods=["GET", "HEAD"])
     def api_health(store: AppStore = Depends(get_store)):
         return _health(store)
 
@@ -73,7 +73,7 @@ def create_app() -> FastAPI:
 
     app.mount("/api/v1", api)
 
-    @app.get("/health")
+    @app.api_route("/health", methods=["GET", "HEAD"])
     def root_health(store: AppStore = Depends(get_store)):
         return _health(store)
 
